@@ -1,0 +1,17 @@
+{
+  "name": "আমার গাছ",
+  "short_name": "আমার গাছ",
+  "description": "রোজকার নিয়ম পূরণ করে গাছ বড় করুন",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#d6eefb",
+  "theme_color": "#5eb6ec",
+  "lang": "bn",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

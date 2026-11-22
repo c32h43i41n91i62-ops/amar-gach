@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#5eb6ec">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>আমার গাছ – রোজকার নিয়মে বেড়ে ওঠা বাগান</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#d6eefb; --bg2:#bfe3f6; --card:#f4fbff; --card2:#e1f2fc; --line:#b2d8ee;
+  --text:#10344d; --muted:#4d7490; --leaf:#2e9e5b; --water:#2b8fd6; --lantern:#f5a623; --danger:#d0453b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg2)}
+body{font-family:'Hind Siliguri',system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,#cdeafa 0%,#e4f5fd 100%);background-attachment:fixed;min-height:100vh;line-height:1.55;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:'Tiro Bangla','Hind Siliguri',serif;font-weight:400}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--lantern);outline-offset:2px}
+main{max-width:520px;margin:0 auto;padding-bottom:48px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 6px}
+.top h1{font-size:26px;line-height:1.2}
+.top p{color:var(--muted);font-size:14px}
+.iconbtn{height:42px;padding:0 14px;border-radius:21px;background:var(--card);border:1px solid var(--line);font-size:14px;white-space:nowrap}
+
+.stage{position:relative;height:min(52svh,440px);min-height:300px;margin:6px 10px 0;border-radius:28px;overflow:hidden;
+  background:linear-gradient(180deg,#5eb6ec 0%,#98d4f6 50%,#d6f0fd 100%);border:1px solid var(--line);box-shadow:0 8px 24px #4a9fd633}
+.stage.sticky{position:sticky;top:6px;z-index:5;height:min(40svh,330px);min-height:240px}
+.stage::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(38px 16px at 18% 20%,#ffffffd9 60%,transparent 62%),radial-gradient(54px 20px at 26% 22%,#ffffffcc 60%,transparent 62%),
+  radial-gradient(44px 16px at 78% 34%,#ffffffcc 60%,transparent 62%),radial-gradient(64px 22px at 86% 36%,#ffffffb3 60%,transparent 62%),
+  radial-gradient(40px 14px at 10% 56%,#ffffff99 60%,transparent 62%);pointer-events:none}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
+#fallback{position:absolute;inset:0;display:none;align-items:flex-end;justify-content:center;padding-bottom:22px;font-size:90px;transition:font-size .8s}
+.chips{position:absolute;left:12px;right:12px;top:12px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none}
+.chip{background:#ffffffcc;border:1px solid #ffffff;border-radius:16px;padding:3px 12px;font-size:13px;color:var(--text);backdrop-filter:blur(4px)}
+.chip b{color:#1f7f48;font-weight:600}
+.growwrap{position:absolute;left:14px;right:14px;bottom:12px;pointer-events:none}
+.growbar{height:8px;border-radius:4px;background:#ffffffb3;overflow:hidden;border:1px solid #ffffff}
+#growFill{height:100%;width:0;background:linear-gradient(90deg,#43b86e,#2e9e5b);border-radius:4px;transition:width 1.4s ease}
+#stageMsg{margin-top:6px;font-size:14px;text-align:center;color:#0d3a58;text-shadow:0 1px 6px #ffffffcc}
+
+section.panel{margin:14px 10px 0;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px 16px;box-shadow:0 4px 16px #4a9fd61f}
+.panel h2{font-size:21px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel h2 small{font-family:'Hind Siliguri',sans-serif;font-size:14px;color:var(--muted)}
+.hint{color:var(--muted);font-size:14px;margin-top:2px}
+
+ul.rules{list-style:none;margin-top:12px;display:grid;gap:8px}
+.rule{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line);border-radius:16px;transition:background .2s,border-color .2s}
+.rule.on{background:#d6f3e2;border-color:#6cc796}
+.rule .tick{flex:1;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 12px;min-height:52px;border-radius:16px}
+.box{flex:none;width:26px;height:26px;border-radius:9px;border:2px solid #7fb0cc;background:#fff;display:grid;place-items:center;transition:all .2s;color:transparent;font-size:16px;font-weight:700}
+.rule.on .box{background:var(--leaf);border-color:var(--leaf);color:#fff;transform:scale(1.08)}
+.rule.on .txt{color:#1b5a39}
+.rule .del{flex:none;margin-right:8px;width:36px;height:36px;border-radius:12px;background:#fde4e1;color:var(--danger);font-size:18px}
+.rule[data-locked="1"] .tick{cursor:default;opacity:.85}
+
+.addrow{display:flex;gap:8px;margin-top:12px}
+input[type=text],input[type=number]{flex:1;min-width:0;height:46px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--text);padding:0 14px;font:inherit}
+.btn{height:46px;padding:0 18px;border-radius:14px;background:var(--card2);border:1px solid var(--line);font-weight:500}
+.btn.primary{background:var(--leaf);color:#fff;border-color:var(--leaf);font-weight:600}
+.btn.ghost{background:transparent}
+.linkbtn{color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;padding:6px 2px}
+
+#btnWater{position:relative;overflow:hidden;width:100%;height:64px;margin-top:16px;border-radius:20px;background:#fff;border:1px solid #86bfe3;font-weight:600;font-size:17px;color:#0f4468;isolation:isolate}
+#btnWater .fill{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#8cd0f7,#5ab4ee);z-index:-1;transition:width .5s ease}
+#btnWater:disabled{cursor:default}
+#btnWater.ready{border-color:var(--lantern);color:#0b3a5c;animation:glow 1.8s ease-in-out infinite}
+#btnWater.ready .fill{width:100%!important;background:linear-gradient(90deg,#b9e4ff,#8fd0ff)}
+#btnWater.done{border-color:#6cc796;color:#1b7a46;background:#eefaf3}
+#btnWater.done .fill{width:0!important}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 #f5a62300}50%{box-shadow:0 0 22px 4px #f5a62366}}
+@media (prefers-reduced-motion:reduce){#btnWater.ready{animation:none}*{transition-duration:.01ms!important}}
+
+.dots{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.dot{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--line)}
+.dot.w{background:var(--water);border-color:var(--water)}
+.dot.p{background:linear-gradient(90deg,#6cc796 50%,#fff 50%);border-color:#7fb0cc}
+.dot.t{outline:2px solid var(--lantern);outline-offset:2px}
+
+/* setup */
+.plants{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.plant{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 2px;border-radius:16px;background:var(--card2);border:2px solid transparent;font-size:13px}
+.plant .em{font-size:30px;line-height:1}
+.plant[aria-pressed=true]{border-color:var(--leaf);background:#d6f3e2}
+.goals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.goal{padding:12px 4px;border-radius:16px;background:var(--card2);border:2px solid transparent;text-align:center}
+.goal b{display:block;font-size:20px;font-family:'Tiro Bangla',serif;font-weight:400}
+.goal span{font-size:13px;color:var(--muted)}
+.goal[aria-pressed=true]{border-color:var(--leaf);background:#d6f3e2}
+.custom{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--muted);font-size:14px}
+.custom input{max-width:110px;text-align:center}
+.sugs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sug{padding:6px 12px;border-radius:14px;background:var(--card2);border:1px dashed #6fa8cb;font-size:13px}
+.sug[disabled]{opacity:.35}
+.step{margin-top:20px}
+.step h3{font-size:18px}
+.warn{margin-top:12px;color:var(--danger);font-size:14px}
+.bar{display:flex;gap:10px;margin-top:20px}
+.bar .btn{flex:1}
+.bar .primary{flex:2}
+.hidden{display:none!important}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <h1 id="plantName">আমার গাছ</h1>
+      <p id="sub"></p>
+    </div>
+    <button class="iconbtn" id="btnNew" type="button">নতুন গাছ</button>
+  </header>
+
+  <section class="stage" id="stage" aria-label="আপনার গাছ">
+    <canvas id="gl"></canvas>
+    <div id="fallback" aria-hidden="true">🌱</div>
+    <div class="chips">
+      <span class="chip" id="chipWater"></span>
+      <span class="chip" id="chipStreak"></span>
+    </div>
+    <div class="growwrap">
+      <div class="growbar"><div id="growFill"></div></div>
+      <p id="stageMsg"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="today">
+    <h2>আজকের নিয়ম <small id="count"></small></h2>
+    <p class="hint" id="todayHint">সব নিয়ম পূরণ হলে গাছের গোড়ায় পানি দিতে পারবেন।</p>
+    <ul class="rules" id="rules"></ul>
+    <div class="addrow hidden" id="addRow">
+      <input type="text" id="newRule" maxlength="60" placeholder="নতুন নিয়ম লিখুন" aria-label="নতুন নিয়ম">
+      <button class="btn primary" id="btnAdd" type="button">যোগ করুন</button>
+    </div>
+    <p style="margin-top:10px"><button class="linkbtn" id="btnEdit" type="button">নিয়ম বদলান</button></p>
+    <button id="btnWater" type="button" disabled><span class="fill"></span><span id="waterTxt">পানি দিন</span></button>
+  </section>
+
+  <section class="panel" id="historyPanel">
+    <h2>গত ১৪ দিন</h2>
+    <div class="dots" id="dots" aria-label="গত ১৪ দিনের হিসাব"></div>
+  </section>
+
+  <section class="panel hidden" id="setup">
+    <h2>নতুন গাছ লাগান</h2>
+    <div class="step">
+      <h3>কোন গাছ?</h3>
+      <div class="plants" id="plantPick" role="group" aria-label="গাছ বাছাই"></div>
+    </div>
+    <div class="step">
+      <h3>কত দিনে বড় হবে?</h3>
+      <div class="goals" id="goalPick" role="group" aria-label="লক্ষ্য বাছাই">
+        <button class="goal" type="button" data-g="7"><b>৭ দিন</b><span>এক সপ্তাহ</span></button>
+        <button class="goal" type="button" data-g="30"><b>৩০ দিন</b><span>এক মাস</span></button>
+        <button class="goal" type="button" data-g="365"><b>৩৬৫ দিন</b><span>এক বছর</span></button>
+      </div>
+      <label class="custom">নিজের মতো দিন: <input type="number" id="customGoal" min="1" max="3650" inputmode="numeric" placeholder="যেমন ১০০"> দিন</label>
+    </div>
+    <div class="step">
+      <h3>রোজকার নিয়ম</h3>
+      <p class="hint">যা প্রতিদিন করতে চান, সেগুলো লিখুন। এগুলোই আপনার চেকলিস্ট।</p>
+      <ul class="rules" id="setupRules"></ul>
+      <div class="addrow">
+        <input type="text" id="setupNew" maxlength="60" placeholder="যেমন: সকালে হাঁটা" aria-label="নিয়ম লিখুন">
+        <button class="btn" id="setupAdd" type="button">যোগ করুন</button>
+      </div>
+      <div class="sugs" id="sugs"></div>
+    </div>
+    <div class="step">
+      <h3>গাছের নাম <span class="hint">(ইচ্ছা হলে)</span></h3>
+      <div class="addrow"><input type="text" id="setupName" maxlength="24" placeholder="যেমন: সবুজ" aria-label="গাছের নাম"></div>
+    </div>
+    <p class="warn hidden" id="warn"></p>
+    <div class="bar">
+      <button class="btn ghost" id="btnCancel" type="button">বাতিল</button>
+      <button class="btn primary" id="btnStart" type="button">গাছ লাগান</button>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+var bn=function(n){return String(n).replace(/\d/g,function(d){return '০১২৩৪৫৬৭৮৯'[d];});};
+var pad=function(n){return String(n).padStart(2,'0');};
+var keyOf=function(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+var dayDiff=function(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/864e5);};
+var clamp=function(x,a,b){return Math.max(a,Math.min(b,x));};
+var kfun=function(a,b,t){return clamp((t-a)/(b-a),0,1);};
+var ease=function(k){return k*k*(3-2*k);};
+var $=function(id){return document.getElementById(id);};
+var uid=function(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);};
+var today=function(){return keyOf(new Date());};
+
+var PLANTS=[
+  {id:'tree',   n:'বটগাছ',    em:'🌳'},
+  {id:'sun',    n:'সূর্যমুখী', em:'🌻'},
+  {id:'cactus', n:'ক্যাকটাস',  em:'🌵'},
+  {id:'bamboo', n:'বাঁশ',      em:'🎋'},
+  {id:'sakura', n:'চেরি ফুল',  em:'🌸'}
+];
+var SUGGEST=['সকালে ব্যায়াম','৮ গ্লাস পানি','৩০ মিনিট বই পড়া','ধ্যান বা প্রার্থনা','রাত ১১টার আগে ঘুম','ফোনে সময় কম'];
+
+/* ---------- state + persistence ---------- */
+var LS_KEY='plant-checklist-v1';
+var state=null, dirty=false, cloudDoc=null, saveTimer=null;
+
+function loadLocal(){
+  try{var s=localStorage.getItem(LS_KEY);return s?JSON.parse(s):null;}catch(e){return null;}
+}
+function persist(){
+  dirty=true;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){
+    var json=JSON.stringify(state);
+    try{localStorage.setItem(LS_KEY,json);}catch(e){}
+    if(cloudDoc){try{Promise.resolve(cloudDoc.set({json:json})).catch(function(){});}catch(e){}}
+  },250);
+}
+async function initCloud(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    var results=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+    var db=results[0],user=results[1];
+    if(!db||!user)return;
+    var id=await user.id();
+    var doc=db.collection('data/users/'+id).doc('garden');
+    var snap=await doc.get();
+    var data=null;
+    if(snap){
+      var ex=(typeof snap.exists==='function')?snap.exists():snap.exists;
+      if(ex===false)data=null;
+      else data=(typeof snap.data==='function')?snap.data():snap;
+    }
+    cloudDoc=doc;
+    if(data&&data.json&&!dirty){
+      var s=JSON.parse(data.json);
+      if(s&&s.rules){state=s;migrate();if(scene3d)setPlant(state.plant);if(setupMode)closeSetup();else render(true);}
+    }else if(state&&!data){
+      persist();
+    }
+  }catch(e){}
+}
+function migrate(){
+  if(!state.log)state.log={};
+  if(!state.rules)state.rules=[];
+}
+
+/* ---------- derived values ---------- */
+function wateredCount(){var c=0;for(var k in state.log){if(state.log[k].w)c++;}return c;}
+function growth(){return clamp(wateredCount()/state.goal,0,1);}
+function todayLog(){var k=today();if(!state.log[k])state.log[k]={d:[],w:0};return state.log[k];}
+function peekToday(){return state.log[today()]||{d:[],w:0};}
+function lastWatered(){var best=null;for(var k in state.log){if(state.log[k].w&&(!best||k>best))best=k;}return best;}
+function streak(){
+  var n=0,d=new Date();
+  if(!(state.log[keyOf(d)]&&state.log[keyOf(d)].w))d.setDate(d.getDate()-1);
+  while(state.log[keyOf(d)]&&state.log[keyOf(d)].w){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+function thirst(){
+  if(peekToday().w)return 0;
+  var ref=lastWatered()||state.start;
+  var gap=dayDiff(ref,today());
+  return clamp((gap-1)/3,0,1);
+}
+function allDone(){
+  var l=peekToday();
+  return state.rules.length>0&&state.rules.every(function(r){return l.d.indexOf(r.id)>=0;});
+}
+function doneCount(){
+  var l=peekToday();
+  return state.rules.filter(function(r){return l.d.indexOf(r.id)>=0;}).length;
+}
+function isComplete(){return wateredCount()>=state.goal;}
+
+/* ---------- 3D scene ---------- */
+var scene3d=null;
+var T=window.THREE;
+var dispT=0, targetThirst=0, dispThirst=0, wetness=0, targetWet=0;
+var animating=false;
+
+function initScene(){
+  if(!T)return false;
+  try{
+    var canvas=$('gl');
+    var renderer=new T.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=T.PCFSoftShadowMap;
+    if(T.sRGBEncoding)renderer.outputEncoding=T.sRGBEncoding;
+    var scene=new T.Scene();
+    var camera=new T.PerspectiveCamera(38,1,0.1,60);
+    scene.add(new T.HemisphereLight(0xdff6ff,0x3a5a45,0.85));
+    var sun=new T.DirectionalLight(0xfff0d0,0.95);
+    sun.position.set(3.5,7,4.5);
+    sun.castShadow=true;
+    sun.shadow.mapSize.set(1024,1024);
+    var sc=sun.shadow.camera;sc.left=-4;sc.right=4;sc.top=5;sc.bottom=-3;sc.near=1;sc.far=20;
+    scene.add(sun);
+    var rim=new T.DirectionalLight(0x8fd0ff,0.35);rim.position.set(-4,3,-4);scene.add(rim);
+
+    var root=new T.Group();scene.add(root);
+    var S={renderer:renderer,scene:scene,camera:camera,root:root,plant:null,sprout:null,parts:[],leafMats:[],yaw:0,drag:null,t0:performance.now()};
+
+    buildIsland(S);
+    buildCan(S);
+    buildDrops(S);
+
+    /* drag to rotate */
+    canvas.addEventListener('pointerdown',function(e){S.drag={x:e.clientX,yaw:S.yaw};try{canvas.setPointerCapture(e.pointerId);}catch(_){}canvas.style.cursor='grabbing';});
+    canvas.addEventListener('pointermove',function(e){if(S.drag){S.yaw=S.drag.yaw+(e.clientX-S.drag.x)*0.012;}});
+    var end=function(){S.drag=null;canvas.style.cursor='grab';};
+    canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+
+    var resize=function(){
+      var w=canvas.clientWidth||300,h=canvas.clientHeight||300;
+      renderer.setSize(w,h,false);
+      camera.aspect=w/h;
+      var dist=8.4/Math.min(1,camera.aspect*1.15);
+      camera.position.set(0,3.0+ (dist-8.4)*0.15,dist);
+      camera.lookAt(0,0.95,0);
+      camera.updateProjectionMatrix();
+    };
+    S.resize=resize;
+    if(window.ResizeObserver)new ResizeObserver(resize).observe($('stage'));
+    window.addEventListener('resize',resize);
+    resize();
+
+    scene3d=S;
+    setPlant(state?state.plant:'tree');
+    requestAnimationFrame(loop);
+    return true;
+  }catch(e){
+    scene3d=null;return false;
+  }
+}
+
+function mat(c,o){
+  o=o||{};
+  return new T.MeshStandardMaterial({color:c,roughness:o.r==null?0.85:o.r,metalness:0,flatShading:o.flat!==false,transparent:!!o.tr,opacity:o.op==null?1:o.op});
+}
+function mesh(geo,m,x,y,z){var o=new T.Mesh(geo,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;o.receiveShadow=true;return o;}
+
+function buildIsland(S){
+  var g=new T.Group();
+  var under=mesh(new T.ConeGeometry(2.0,1.5,28),mat(0x7a5a45),0,-0.91,0);under.rotation.x=Math.PI;under.castShadow=false;g.add(under);
+  var grass=mesh(new T.CylinderGeometry(2.0,2.0,0.22,32),mat(0x5aa860),0,-0.05,0);grass.castShadow=false;g.add(grass);
+  S.soilMat=mat(0x8a6a4a,{flat:false,r:0.95});
+  var soil=mesh(new T.CylinderGeometry(0.95,1.0,0.12,28),S.soilMat,0,0.05,0);soil.castShadow=false;g.add(soil);
+  var rockM=mat(0x9aa3a0);
+  [[1.3,0.14,0.9,0.14],[-1.4,0.12,0.6,0.11],[0.6,0.12,-1.4,0.1],[-0.9,0.1,-1.2,0.13],[1.5,0.1,-0.5,0.09]].forEach(function(r){
+    g.add(mesh(new T.IcosahedronGeometry(r[3],0),rockM,r[0],r[1],r[2]));
+  });
+  var tuftM=mat(0x74c97d);
+  for(var i=0;i<18;i++){
+    var a=i/18*Math.PI*2+0.3,rr=1.35+((i*37)%10)/10*0.5;
+    var c=mesh(new T.ConeGeometry(0.07,0.26,4),tuftM,Math.cos(a)*rr,0.2,Math.sin(a)*rr);c.castShadow=false;g.add(c);
+  }
+  S.root.add(g);
+}
+
+function buildCan(S){
+  var can=new T.Group();
+  var bm=mat(0x4aa3df,{flat:false,r:0.5});
+  can.add(mesh(new T.CylinderGeometry(0.34,0.34,0.5,16),bm,0,0,0));
+  can.add(mesh(new T.CylinderGeometry(0.2,0.34,0.12,16),bm,0,0.3,0));
+  var spout=mesh(new T.CylinderGeometry(0.05,0.08,0.7,10),bm,-0.6,0.12,0);spout.rotation.z=Math.PI/2-0.45;can.add(spout);
+  var rose=mesh(new T.CylinderGeometry(0.1,0.06,0.07,10),mat(0x2f7fb3,{flat:false}),-0.92,0.3,0);rose.rotation.z=Math.PI/2-0.45;can.add(rose);
+  var h=mesh(new T.TorusGeometry(0.22,0.035,8,18,Math.PI*1.3),mat(0x2f7fb3,{flat:false}),0.34,0.05,0);h.rotation.z=-Math.PI*0.65;can.add(h);
+  can.visible=false;
+  S.can=can;S.scene.add(can);
+}
+function buildDrops(S){
+  S.drops=[];
+  var gm=new T.SphereGeometry(0.05,8,6),mm=new T.MeshStandardMaterial({color:0x7cc8ff,roughness:0.2,emissive:0x2a6a9a,emissiveIntensity:0.5});
+  for(var i=0;i<90;i++){
+    var m=new T.Mesh(gm,mm);m.visible=false;S.scene.add(m);
+    S.drops.push({m:m,vx:0,vy:0,vz:0,on:false});
+  }
+}
+
+function disposePlant(S){
+  [S.plant,S.sprout].forEach(function(g){
+    if(!g)return;
+    S.root.remove(g);
+    g.traverse(function(o){if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});
+  });
+  S.plant=null;S.sprout=null;S.parts=[];S.leafMats=[];
+}
+function leafMat(S,c,dry){
+  var m=mat(c);
+  S.leafMats.push({m:m,base:new T.Color(c),dry:new T.Color(dry||0xcdb24c)});
+  return m;
+}
+function part(S,obj,from,to){S.parts.push({o:obj,a:from,b:to});obj.scale.setScalar(0.0001);}
+function pivot(parent,x,y,z){var g=new T.Group();g.position.set(x||0,y||0,z||0);parent.add(g);return g;}
+
+function setPlant(id){
+  var S=scene3d;if(!S)return;
+  disposePlant(S);
+  var g=new T.Group();S.root.add(g);S.plant=g;
+  var sp=new T.Group();S.root.add(sp);S.sprout=sp;
+  var sm=leafMat(S,0x7ed957,0xd2c15a);
+  sp.add(mesh(new T.CylinderGeometry(0.03,0.045,0.42,6),mat(0x6fbf5e),0,0.21,0));
+  var l1=mesh(new T.SphereGeometry(0.2,8,6),sm,0.16,0.42,0);l1.scale.set(1,0.22,0.6);l1.rotation.z=0.5;sp.add(l1);
+  var l2=mesh(new T.SphereGeometry(0.2,8,6),sm,-0.16,0.42,0);l2.scale.set(1,0.22,0.6);l2.rotation.z=-0.5;sp.add(l2);
+  sp.position.y=0.1;
+  ({tree:buildTree,sun:buildSun,cactus:buildCactus,bamboo:buildBamboo,sakura:buildSakura})[id](S,g);
+  g.position.y=0.1;
+  applyGrowth(dispT,true);
+}
+
+function buildTree(S,g){
+  var trunkM=mat(0x7a5638);
+  var tr=pivot(g,0,0,0);tr.add(mesh(new T.CylinderGeometry(0.13,0.22,1.7,7),trunkM,0,0.85,0));part(S,tr,0.03,0.4);
+  [[0.4,0.9,0.9,0.55],[-0.4,1.1,-0.7,-0.6]].forEach(function(b,i){
+    var p=pivot(g,0,b[1],0);var m=mesh(new T.CylinderGeometry(0.05,0.09,0.8,6),trunkM,b[0]*0.9,0.3,0);m.rotation.z=-b[3]*1.1;p.add(m);part(S,p,0.25+i*0.1,0.55+i*0.1);
+  });
+  var cols=[0x4caf6a,0x3f9a5a,0x62c27a,0x4caf6a,0x57b972,0x3f9a5a,0x6ccf84];
+  var pos=[[0,2.35,0,0.8],[0.75,1.95,0.2,0.6],[-0.75,2.0,-0.1,0.62],[0.2,1.85,0.75,0.55],[-0.25,2.1,-0.7,0.55],[0.55,2.5,-0.25,0.5],[-0.5,2.55,0.3,0.48]];
+  pos.forEach(function(c,i){
+    var p=pivot(g,c[0],c[1],c[2]);p.add(mesh(new T.IcosahedronGeometry(c[3],1),leafMat(S,cols[i]),0,0,0));part(S,p,0.18+i*0.07,0.5+i*0.07);
+  });
+  var fm=mat(0xff7a59,{flat:false,r:0.4});
+  [[0.5,2.8,0.4],[-0.6,2.3,0.55],[0.85,2.0,0.55],[0,2.95,-0.3],[-0.9,2.1,-0.2]].forEach(function(c,i){
+    var p=pivot(g,c[0],c[1],c[2]);p.add(mesh(new T.SphereGeometry(0.11,10,8),fm,0,0,0));part(S,p,0.86+i*0.025,0.97+i*0.01);
+  });
+}
+function buildSakura(S,g){
+  var trunkM=mat(0x6b4a3a);
+  var tr=pivot(g,0,0,0);tr.add(mesh(new T.CylinderGeometry(0.1,0.2,1.6,7),trunkM,0,0.8,0));part(S,tr,0.03,0.4);
+  [[0.55,1.2],[-0.5,1.4],[0.1,1.7]].forEach(function(b,i){
+    var p=pivot(g,0,b[1],0);var m=mesh(new T.CylinderGeometry(0.04,0.08,0.9,6),trunkM,b[0]*0.6,0.35,i==2?0.3:0);m.rotation.z=-b[0]*1.0;p.add(m);part(S,p,0.2+i*0.1,0.5+i*0.1);
+  });
+  var cols=[0xf4a6c0,0xf8c8d8,0xe88aa8,0xf6b6cb,0xfad4e0,0xee9ab5,0xf8c8d8,0xf4a6c0];
+  var pos=[[0,2.4,0,0.75],[0.85,2.05,0.1,0.58],[-0.85,2.1,0,0.6],[0.25,1.95,0.8,0.5],[-0.3,2.2,-0.8,0.52],[0.6,2.7,-0.2,0.45],[-0.55,2.7,0.25,0.45],[0,2.05,-0.5,0.5]];
+  pos.forEach(function(c,i){
+    var p=pivot(g,c[0],c[1],c[2]);p.add(mesh(new T.IcosahedronGeometry(c[3],1),leafMat(S,cols[i],0xcbb27a),0,0,0));part(S,p,0.2+i*0.07,0.55+i*0.07);
+  });
+  var pm=mat(0xffe3ec,{flat:false});
+  for(var i=0;i<14;i++){
+    var a=i*2.4,r=0.9+((i*13)%7)*0.06;
+    var p=pivot(g,Math.cos(a)*r,2.0+((i*7)%6)*0.14,Math.sin(a)*r);
+    p.add(mesh(new T.SphereGeometry(0.07,6,5),pm,0,0,0));
+    part(S,p,0.8+(i%5)*0.04,0.95);
+  }
+}
+function buildSun(S,g){
+  var stemM=mat(0x4f9a4a);
+  var st=pivot(g,0,0,0);st.add(mesh(new T.CylinderGeometry(0.05,0.08,2.3,8),stemM,0,1.15,0));part(S,st,0.03,0.5);
+  var lm=leafMat(S,0x5fb85a);
+  [[0.7,0.0],[1.05,Math.PI],[1.4,Math.PI/2],[1.75,-Math.PI/2]].forEach(function(l,i){
+    var p=pivot(g,0,l[0],0);p.rotation.y=l[1];
+    var m=mesh(new T.SphereGeometry(0.4,10,6),lm,0.38,0.05,0);m.scale.set(1,0.14,0.55);m.rotation.z=0.35;p.add(m);
+    part(S,p,0.15+i*0.1,0.5+i*0.08);
+  });
+  var head=pivot(g,0,2.35,0);
+  var inner=pivot(head,0,0,0);inner.rotation.x=Math.PI/2-0.3;
+  inner.add(mesh(new T.CylinderGeometry(0.34,0.34,0.12,20),mat(0x5b3a1e),0,0,0));
+  inner.add(mesh(new T.CylinderGeometry(0.2,0.2,0.16,16),mat(0x7a4d24),0,0.02,0));
+  var pm=mat(0xffc531,{flat:false});
+  for(var i=0;i<18;i++){
+    var a=i/18*Math.PI*2;
+    var pp=pivot(inner,Math.cos(a)*0.52,0,Math.sin(a)*0.52);pp.rotation.y=-a;
+    var m=mesh(new T.SphereGeometry(0.2,8,6),pm,0,0,0);m.scale.set(1,0.18,0.42);pp.add(m);
+  }
+  part(S,head,0.55,0.92);
+}
+function buildCactus(S,g){
+  var cm=mat(0x4fae6e);
+  var body=pivot(g,0,0,0);
+  body.add(mesh(new T.CylinderGeometry(0.4,0.44,1.7,16),cm,0,0.85,0));
+  var top=mesh(new T.SphereGeometry(0.4,16,10),cm,0,1.7,0);top.scale.y=0.85;body.add(top);
+  var spM=mat(0xf4f0d8,{flat:false});
+  for(var i=0;i<46;i++){
+    var a=i*2.399,y=0.2+((i*29)%15)/15*1.55;
+    var p=pivot(body,0,y,0);p.rotation.y=a;
+    var s=mesh(new T.ConeGeometry(0.022,0.14,4),spM,0.42,0,0);s.rotation.z=-Math.PI/2;s.castShadow=false;p.add(s);
+  }
+  part(S,body,0.03,0.45);
+  function arm(side,y,len,h,from){
+    var a=pivot(g,side*0.4,y,0);
+    var h1=mesh(new T.CylinderGeometry(0.17,0.17,len,10),cm,side*len/2,0,0);h1.rotation.z=Math.PI/2;a.add(h1);
+    a.add(mesh(new T.SphereGeometry(0.17,10,8),cm,side*len,0,0));
+    a.add(mesh(new T.CylinderGeometry(0.17,0.17,h,10),cm,side*len,h/2,0));
+    a.add(mesh(new T.SphereGeometry(0.17,10,8),cm,side*len,h,0));
+    part(S,a,from,from+0.3);
+  }
+  arm(-1,0.85,0.55,0.7,0.35);
+  arm(1,1.1,0.45,0.5,0.5);
+  var fl=pivot(g,0,2.1,0);
+  var fm=mat(0xff8fb8,{flat:false});
+  for(var j=0;j<8;j++){
+    var aa=j/8*Math.PI*2;var pp=pivot(fl,0,0,0);pp.rotation.y=aa;
+    var c=mesh(new T.ConeGeometry(0.1,0.34,5),fm,0.14,0.08,0);c.rotation.z=-0.7;pp.add(c);
+  }
+  fl.add(mesh(new T.SphereGeometry(0.1,8,6),mat(0xffd54a,{flat:false}),0,0.06,0));
+  part(S,fl,0.85,0.98);
+}
+function buildBamboo(S,g){
+  var segM=mat(0x7fb64a,{flat:false,r:0.6}),ringM=mat(0x5f9a35,{flat:false}),lM=leafMat(S,0x8fcf5a);
+  [[0,0.15,6,0],[-0.34,-0.12,5,0.25],[0.32,-0.14,4,0.5]].forEach(function(st){
+    var N=st[2];
+    for(var i=0;i<N;i++){
+      var p=pivot(g,st[0],i*0.42,st[1]);
+      p.add(mesh(new T.CylinderGeometry(0.08,0.085,0.42,10),segM,0,0.21,0));
+      var ring=mesh(new T.TorusGeometry(0.09,0.02,6,12),ringM,0,0.42,0);ring.rotation.x=Math.PI/2;p.add(ring);
+      if(i>=N-3){
+        [0,Math.PI*0.8].forEach(function(r){
+          var lp=pivot(p,0,0.42,0);lp.rotation.y=r+i;
+          var l=mesh(new T.ConeGeometry(0.07,0.6,4),lM,0.28,0.12,0);l.rotation.z=-1.15;l.scale.z=0.35;lp.add(l);
+        });
+      }
+      var a=0.03+st[3]*0.2+i*(0.62/N);
+      part(S,p,a,a+0.16);
+    }
+  });
+}
+
+function applyGrowth(t,force){
+  var S=scene3d;if(!S||!S.plant)return;
+  var s=0.4+0.6*ease(kfun(0,1,t));
+  S.plant.scale.setScalar(s);
+  S.parts.forEach(function(p){
+    var k=ease(kfun(p.a,p.b,t));
+    p.o.scale.setScalar(Math.max(k,0.0001));p.o.visible=k>0.002;
+  });
+  var sk=1-ease(kfun(0.1,0.3,t));
+  S.sprout.scale.setScalar(Math.max(sk,0.0001));S.sprout.visible=sk>0.002;
+}
+function applyThirst(th){
+  var S=scene3d;if(!S)return;
+  S.leafMats.forEach(function(l){l.m.color.copy(l.base).lerp(l.dry,th*0.85);});
+}
+
+var dryC=null,wetC=null;
+function loop(now){
+  var S=scene3d;if(!S)return;
+  var t=(now-S.t0)/1000;
+  if(!dryC){dryC=new T.Color(0x8a6a4a);wetC=new T.Color(0x3b2616);}
+  dispThirst+=(targetThirst-dispThirst)*0.05;
+  wetness+=(targetWet-wetness)*0.04;
+  S.soilMat.color.copy(dryC).lerp(wetC,wetness);
+  applyThirst(dispThirst);
+  S.root.rotation.y=S.yaw+(S.drag?0:Math.sin(t*0.3)*0.12);
+  if(S.plant){
+    S.plant.rotation.z=Math.sin(t*1.2)*0.012-dispThirst*0.09;
+    S.sprout.rotation.z=Math.sin(t*1.5)*0.03-dispThirst*0.12;
+  }
+  stepWater(S,now);
+  applyGrowth(dispT);
+  S.renderer.render(S.scene,S.camera);
+  requestAnimationFrame(loop);
+}
+
+/* watering animation */
+var W=null;
+function startWaterAnim(fromT,toT,done){
+  var S=scene3d;
+  if(!S){
+    // fallback without WebGL
+    animating=true;
+    setTimeout(function(){dispT=toT;updateFallback();animating=false;done();},900);
+    return;
+  }
+  animating=true;
+  W={t0:performance.now(),fromT:fromT,toT:toT,done:done,last:0,fin:false};
+  S.can.visible=true;
+}
+function stepWater(S,now){
+  if(!W)return;
+  var e=(now-W.t0)/1000;
+  var can=S.can;
+  var tilt=0,px=3.9,py=3.3;
+  var ex=2.3,ey=2.55;
+  if(e<0.9){var k=ease(e/0.9);px=3.9+(ex-3.9)*k;py=3.3+(ey-3.3)*k;tilt=0;}
+  else if(e<3.3){px=ex;py=ey;tilt=ease(kfun(0.9,1.5,e))*0.62;}
+  else{var k2=ease(kfun(3.3,4.1,e));px=ex+(3.9-ex)*k2;py=ey+(3.3-ey)*k2;tilt=0.62*(1-k2);}
+  can.position.set(px,py,0.2);
+  can.rotation.z=tilt;
+  // emit
+  if(e>1.2&&e<3.1&&now-W.last>28){
+    W.last=now;
+    can.updateMatrixWorld(true);
+    var tip=can.localToWorld(new T.Vector3(-0.98,0.2,0));
+    for(var i=0;i<S.drops.length;i++){
+      var d=S.drops[i];
+      if(!d.on){d.on=true;d.m.visible=true;d.m.position.copy(tip);d.vx=-1.6-Math.random()*0.5;d.vy=-0.4;d.vz=(Math.random()-0.5)*0.35;break;}
+    }
+  }
+  // drops physics
+  var dt=0.016;
+  S.drops.forEach(function(d){
+    if(!d.on)return;
+    d.vy-=9*dt;
+    d.m.position.x+=d.vx*dt;d.m.position.y+=d.vy*dt;d.m.position.z+=d.vz*dt;
+    if(d.m.position.y<0.18){d.on=false;d.m.visible=false;}
+  });
+  if(e>1.4&&e<3.3)targetWet=Math.min(1,0.15+(e-1.4)/1.2);
+  if(e>1.6){dispT=W.fromT+(W.toT-W.fromT)*ease(kfun(1.6,3.6,e));}
+  if(e>4.2&&!W.fin){
+    W.fin=true;can.visible=false;dispT=W.toT;
+    var cb=W.done;W=null;animating=false;cb();
+  }
+}
+
+/* ---------- fallback (no WebGL) ---------- */
+function updateFallback(){
+  var f=$('fallback');if(!f)return;
+  var p=PLANTS.filter(function(x){return x.id===(state?state.plant:'tree');})[0]||PLANTS[0];
+  f.textContent=dispT<0.12?'🌱':p.em;
+  f.style.fontSize=(48+dispT*120)+'px';
+}
+
+/* ---------- UI ---------- */
+var editing=false, setupMode=false;
+var draft=null;
+
+function msgFor(t){
+  if(isComplete())return 'গাছ পুরো বড় হয়ে গেছে। আপনার কথা রেখেছেন!';
+  if(t<0.1)return 'ছোট্ট একটা অঙ্কুর';
+  if(t<0.35)return 'চারা হয়ে উঠছে';
+  if(t<0.7)return 'বেশ বেড়ে উঠেছে';
+  return 'প্রায় পুরো বড়';
+}
+
+function render(instant){
+  if(!state){openSetup(true);return;}
+  var p=PLANTS.filter(function(x){return x.id===state.plant;})[0]||PLANTS[0];
+  $('plantName').textContent=state.name||('আমার '+p.n);
+  var cnt=wateredCount();
+  var elapsed=Math.max(1,dayDiff(state.start,today())+1);
+  $('sub').textContent=p.n+' · লক্ষ্য '+bn(state.goal)+' দিন';
+  $('chipWater').innerHTML='পানি দেওয়া <b>'+bn(cnt)+'/'+bn(state.goal)+'</b> দিন';
+  var s=streak();
+  $('chipStreak').innerHTML='টানা <b>'+bn(s)+'</b> দিন';
+  var t=growth();
+  $('growFill').style.width=(t*100)+'%';
+  var th=thirst();
+  targetThirst=th;
+  targetWet=peekToday().w?0.85:0.05;
+  var m=msgFor(t);
+  if(!isComplete()&&th>0)m=(th>=0.6?'গাছটা অনেকদিন পানি পায়নি। আজ যত্ন নিন।':'গাছটা একটু পিপাসার্ত।');
+  $('stageMsg').textContent=m;
+  if(instant||!animating){dispT=t;}
+  if(instant){dispThirst=th;wetness=targetWet;}
+  updateFallback();
+  renderRules();
+  renderWater();
+  renderDots();
+  $('sub').title='শুরু থেকে '+bn(elapsed)+' দিন';
+}
+
+function renderRules(){
+  var ul=$('rules');ul.innerHTML='';
+  var l=peekToday();
+  var locked=!!l.w;
+  state.rules.forEach(function(r){
+    var on=l.d.indexOf(r.id)>=0;
+    var li=document.createElement('li');
+    li.className='rule'+(on?' on':'');
+    if(locked)li.setAttribute('data-locked','1');
+    var b=document.createElement('button');
+    b.type='button';b.className='tick';
+    b.setAttribute('role','checkbox');b.setAttribute('aria-checked',on?'true':'false');
+    b.innerHTML='<span class="box">✓</span><span class="txt"></span>';
+    b.querySelector('.txt').textContent=r.t;
+    b.addEventListener('click',function(){toggleRule(r.id);});
+    li.appendChild(b);
+    if(editing){
+      var d=document.createElement('button');d.type='button';d.className='del';d.textContent='✕';d.setAttribute('aria-label',r.t+' মুছুন');
+      d.addEventListener('click',function(){removeRule(r.id);});
+      li.appendChild(d);
+    }
+    ul.appendChild(li);
+  });
+  if(!state.rules.length){
+    var e=document.createElement('li');e.className='hint';e.textContent='এখনো কোনো নিয়ম নেই। নিচের "নিয়ম বদলান" চেপে যোগ করুন।';ul.appendChild(e);
+  }
+  $('count').textContent=bn(doneCount())+'/'+bn(state.rules.length);
+  $('addRow').classList.toggle('hidden',!editing);
+  $('btnEdit').textContent=editing?'হয়ে গেছে':'নিয়ম বদলান';
+}
+
+function renderWater(){
+  var b=$('btnWater'),txt=$('waterTxt'),fill=b.querySelector('.fill');
+  var l=peekToday();
+  b.classList.remove('ready','done');
+  var total=state.rules.length,dn=doneCount();
+  fill.style.width=(total?dn/total*100:0)+'%';
+  if(isComplete()&&l.w){
+    b.disabled=true;b.classList.add('done');txt.textContent='গাছ পুরো বড় হয়েছে ✓';
+    $('todayHint').textContent='অভিনন্দন! নতুন একটা গাছ লাগাতে পারেন।';
+  }else if(l.w){
+    b.disabled=true;b.classList.add('done');txt.textContent='আজকের পানি দেওয়া হয়ে গেছে ✓';
+    $('todayHint').textContent='কাল আবার আসুন। গাছ বাড়ছে।';
+  }else if(!total){
+    b.disabled=true;txt.textContent='আগে একটা নিয়ম যোগ করুন';
+    $('todayHint').textContent='সব নিয়ম পূরণ হলে গাছের গোড়ায় পানি দিতে পারবেন।';
+  }else if(dn===total){
+    b.disabled=false;b.classList.add('ready');txt.textContent='💧 গোড়ায় পানি দিন';
+    $('todayHint').textContent='সব নিয়ম পূরণ! এবার গাছকে পানি দিন।';
+  }else{
+    b.disabled=true;txt.textContent='আরও '+bn(total-dn)+'টি নিয়ম বাকি';
+    $('todayHint').textContent='সব নিয়ম পূরণ হলে গাছের গোড়ায় পানি দিতে পারবেন।';
+  }
+  if(animating){b.disabled=true;}
+}
+
+function renderDots(){
+  var box=$('dots');box.innerHTML='';
+  var d=new Date();d.setDate(d.getDate()-13);
+  for(var i=0;i<14;i++){
+    var k=keyOf(d);var l=state.log[k];
+    var s=document.createElement('span');s.className='dot';
+    var lab=bn(d.getDate())+'/'+bn(d.getMonth()+1);
+    if(l&&l.w){s.classList.add('w');s.title=lab+': পানি দেওয়া হয়েছে';}
+    else if(l&&l.d&&l.d.length){s.classList.add('p');s.title=lab+': কিছু নিয়ম পূরণ';}
+    else s.title=lab+': কিছু করা হয়নি';
+    if(i===13)s.classList.add('t');
+    box.appendChild(s);d.setDate(d.getDate()+1);
+  }
+}
+
+function toggleRule(id){
+  var l=todayLog();
+  if(l.w||animating)return;
+  var i=l.d.indexOf(id);
+  if(i>=0)l.d.splice(i,1);else l.d.push(id);
+  persist();render();
+}
+function removeRule(id){
+  state.rules=state.rules.filter(function(r){return r.id!==id;});
+  var l=state.log[today()];if(l)l.d=l.d.filter(function(x){return x!==id;});
+  persist();render();
+}
+function addRule(text){
+  text=(text||'').trim();if(!text)return false;
+  state.rules.push({id:uid(),t:text});
+  persist();render();return true;
+}
+
+function doWater(){
+  if(animating)return;
+  if(!allDone()||peekToday().w)return;
+  var from=dispT;
+  var l=todayLog();l.w=1;
+  persist();
+  var to=growth();
+  animating=true;
+  renderWater();
+  startWaterAnim(from,to,function(){
+    animating=false;render(false);dispT=to;
+    $('stageMsg').textContent=isComplete()?'গাছ পুরো বড় হয়ে গেছে। আপনার কথা রেখেছেন!':'পানি পেয়ে গাছ খুশি। কাল আবার আসুন।';
+  });
+}
+
+/* ---------- setup ---------- */
+function openSetup(first){
+  setupMode=true;
+  draft={plant:state?state.plant:'tree',goal:30,rules:[],name:''};
+  if(first&&!state){draft.rules=[{id:uid(),t:'৮ গ্লাস পানি'},{id:uid(),t:'সকালে ব্যায়াম'},{id:uid(),t:'৩০ মিনিট বই পড়া'}];}
+  $('today').classList.add('hidden');$('historyPanel').classList.add('hidden');
+  $('setup').classList.remove('hidden');$('stage').classList.add('sticky');
+  $('btnNew').classList.add('hidden');
+  $('btnCancel').classList.toggle('hidden',!state);
+  $('warn').classList.toggle('hidden',!state);
+  if(state)$('warn').textContent='নতুন গাছ লাগালে বর্তমান গাছের অগ্রগতি মুছে যাবে।';
+  $('setupName').value='';$('customGoal').value='';
+  previewDraft();renderSetup();
+  window.scrollTo({top:0});
+}
+function closeSetup(){
+  setupMode=false;
+  $('today').classList.remove('hidden');$('historyPanel').classList.remove('hidden');
+  $('setup').classList.add('hidden');$('stage').classList.remove('sticky');
+  $('btnNew').classList.remove('hidden');
+  if(scene3d)setPlant(state.plant);
+  if(scene3d)scene3d.resize();
+  render(true);
+}
+function previewDraft(){
+  dispT=0.75;
+  if(scene3d){setPlant(draft.plant);scene3d.resize();}
+  var p=PLANTS.filter(function(x){return x.id===draft.plant;})[0];
+  $('plantName').textContent='আমার '+p.n;
+  $('sub').textContent='নতুন গাছ';
+  $('stageMsg').textContent='এভাবেই বড় হবে। ঘুরিয়ে দেখুন।';
+  $('growFill').style.width='75%';
+  $('chipWater').textContent='পূর্বরূপ';$('chipStreak').textContent='';
+  $('chipStreak').style.display='none';
+  var f=$('fallback');if(f){f.textContent=p.em;f.style.fontSize='150px';}
+  targetThirst=0;dispThirst=0;targetWet=0.4;
+}
+function renderSetup(){
+  var pp=$('plantPick');pp.innerHTML='';
+  PLANTS.forEach(function(p){
+    var b=document.createElement('button');b.type='button';b.className='plant';b.setAttribute('aria-pressed',draft.plant===p.id?'true':'false');
+    b.innerHTML='<span class="em">'+p.em+'</span><span>'+p.n+'</span>';
+    b.addEventListener('click',function(){draft.plant=p.id;previewDraft();renderSetup();});
+    pp.appendChild(b);
+  });
+  var presets=[7,30,365];
+  var gb=$('goalPick').querySelectorAll('.goal');
+  for(var i=0;i<gb.length;i++){
+    gb[i].setAttribute('aria-pressed',String(+gb[i].getAttribute('data-g')===draft.goal&&!$('customGoal').value));
+  }
+  var ul=$('setupRules');ul.innerHTML='';
+  draft.rules.forEach(function(r){
+    var li=document.createElement('li');li.className='rule';
+    var s=document.createElement('span');s.className='tick';s.style.cursor='default';
+    s.innerHTML='<span class="box" style="border-style:dashed"></span><span class="txt"></span>';s.querySelector('.txt').textContent=r.t;
+    li.appendChild(s);
+    var d=document.createElement('button');d.type='button';d.className='del';d.textContent='✕';d.setAttribute('aria-label',r.t+' মুছুন');
+    d.addEventListener('click',function(){draft.rules=draft.rules.filter(function(x){return x.id!==r.id;});renderSetup();});
+    li.appendChild(d);ul.appendChild(li);
+  });
+  var sg=$('sugs');sg.innerHTML='';
+  SUGGEST.forEach(function(t){
+    var has=draft.rules.some(function(r){return r.t===t;});
+    var b=document.createElement('button');b.type='button';b.className='sug';b.textContent='＋ '+t;b.disabled=has;
+    b.addEventListener('click',function(){draft.rules.push({id:uid(),t:t});renderSetup();});
+    sg.appendChild(b);
+  });
+}
+function startPlant(){
+  var cg=parseInt($('customGoal').value,10);
+  var goal=cg>0?clamp(cg,1,3650):draft.goal;
+  if(!draft.rules.length){$('warn').classList.remove('hidden');$('warn').textContent='অন্তত একটা নিয়ম যোগ করুন।';return;}
+  state={v:1,plant:draft.plant,name:$('setupName').value.trim(),goal:goal,start:today(),rules:draft.rules.slice(),log:{}};
+  persist();
+  dispT=0;
+  $('chipStreak').style.display='';
+  closeSetup();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- wiring ---------- */
+$('btnWater').addEventListener('click',doWater);
+$('btnEdit').addEventListener('click',function(){editing=!editing;renderRules();if(editing)$('newRule').focus();});
+$('btnAdd').addEventListener('click',function(){var i=$('newRule');if(addRule(i.value)){i.value='';i.focus();}});
+$('newRule').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('btnAdd').click();}});
+$('btnNew').addEventListener('click',function(){openSetup(false);});
+$('btnCancel').addEventListener('click',function(){$('chipStreak').style.display='';closeSetup();});
+$('btnStart').addEventListener('click',startPlant);
+$('setupAdd').addEventListener('click',function(){
+  var i=$('setupNew'),t=i.value.trim();
+  if(t){draft.rules.push({id:uid(),t:t});i.value='';renderSetup();i.focus();}
+});
+$('setupNew').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('setupAdd').click();}});
+$('goalPick').addEventListener('click',function(e){
+  var b=e.target.closest('.goal');if(!b)return;
+  draft.goal=+b.getAttribute('data-g');$('customGoal').value='';renderSetup();
+});
+$('customGoal').addEventListener('input',renderSetup);
+
+setInterval(function(){if(state&&!setupMode&&!animating){render(false);}},60000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&state&&!setupMode&&!animating)render(false);});
+
+/* ---------- boot ---------- */
+state=loadLocal();
+if(state)migrate();
+var webgl=initScene();
+if(!webgl){$('gl').style.display='none';$('fallback').style.display='flex';}
+if(state){render(true);}else{openSetup(true);}
+initCloud();
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){try{navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}}
+window.__garden={get state(){return state;},water:doWater,render:render};
+})();
+</script>
+</body>
+</html>
